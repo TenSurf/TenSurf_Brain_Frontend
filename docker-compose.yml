@@ -1,9 +1,15 @@
 version: "3"
 
 services:
-  ui:
+  brain-tensurf-ui:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: always
     env_file:
       - .env
+
+networks:
+  default:
+    external: true
+    name: tensurf-network
