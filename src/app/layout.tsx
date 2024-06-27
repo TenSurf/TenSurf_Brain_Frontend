@@ -13,6 +13,7 @@ import FaqIcon from '@/icons/brain/Faq';
 import UpgradeIcon from '@/icons/brain/Upgrade';
 import LogoutIcon from '@/icons/brain/Logout';
 import { HttpService } from '@/services';
+import Cookies from 'js-cookie';
 
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -55,7 +56,8 @@ export default function BrainLayout({
 }>) {
   const [menu_select, setMenuSelect] = useState<string>('Home');
   const router = useRouter();
-  const { chats, loadChats, chatKey, setChatKey, toggleBookmark, dropChat }: any = useBrainStore();
+  const { chats, loadChats, chatKey, setChatKey, toggleBookmark, dropChat, userData, updateUserData }: any =
+    useBrainStore();
   const [openDelete, setOpenDelete] = useState<boolean>();
   const [deleteChatObject, setDeleteChatObject] = useState<any>();
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
@@ -117,13 +119,23 @@ export default function BrainLayout({
       });
     }
     if (menu_select === 'upgrade') {
-      router.push(`${process.env.NEXT_PUBLIC_HUB_URL}/plans`);
+      router.push(`${process.env.NEXT_PUBLIC_TENSURF_URL}/plans`);
+    }
+    if (menu_select === 'logout') {
+      Cookies.remove('tensurftoken');
+      router.replace(process.env.NEXT_PUBLIC_TENSURF_URL as string);
     }
   }, [menu_select, loadChats, router]);
 
   useEffect(() => {
     if (chatKey) setMenuSelect('chats');
   }, [chatKey]);
+
+  useEffect(() => {
+    http.get('/account/get_my_profile/').then(res => {
+      updateUserData(res);
+    });
+  }, []);
 
   const changeBookmark = (chat: any) => {
     toggleBookmark(chat.id);
@@ -144,7 +156,7 @@ export default function BrainLayout({
       .then(() => {
         setOpenDelete(false);
         console.log(deleteChatObject.id, 'id');
-        
+
         dropChat(deleteChatObject.id);
       })
       .catch(() => {})
@@ -182,9 +194,11 @@ export default function BrainLayout({
                   <UserRoundIcon />
                 </AvatarFallback>
               </Avatar>
-              <div className='truncate'>
-                <h2 className='text-[22px] font-medium leading-6 truncate'>Ada Shelby</h2>
-                <span className='text-[10px]'>ada@gmail.com</span>
+              <div className='truncate mt-2'>
+                <h2 className='text-[22px] font-medium leading-6 truncate'>{userData?.full_name}</h2>
+                <span className={`text-[10px] ${!userData?.full_name && 'text-[12px] font-bold'}`}>
+                  {userData?.email}
+                </span>
               </div>
             </div>
           </CardContent>

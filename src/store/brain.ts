@@ -7,10 +7,13 @@ export const useBrainStore = create((set, get) => ({
   promptLoading: false,
   chatKey: '',
   audioSpeed: 1,
+  userData: {},
 
   loadChats: (data: any[]) => set(() => ({ chats: data })),
   loadPrompts: (data: any[]) => set(() => ({ prompts: data })),
   addPrompt: (data: any) => set((state: any) => ({ prompts: [...state.prompts, data] })),
+
+  updateUserData: (data: any) => set(() => ({ userData: data })),
 
   setPromptLoading: (value: boolean) =>
     set((state: any) => {
