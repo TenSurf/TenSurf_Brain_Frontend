@@ -15,6 +15,7 @@ const features = [
     icon: '/images/gpt/light.svg',
     width: 33,
     height: 32,
+    type: 'pnl',
     items: [
       `“Explain quantum computing in simple terms’’`,
       `“Got any creative ideas for a 10 year old’s birthday?’’`,
@@ -26,6 +27,7 @@ const features = [
     icon: '/images/gpt/thunder.svg',
     width: 26,
     height: 26,
+    type: '',
     items: [
       `QA with Financial Markets`,
       `Automate Trading Strategies`,
@@ -37,6 +39,7 @@ const features = [
     icon: '/images/gpt/warning.svg',
     width: 27,
     height: 27,
+    type: '',
     items: [
       ` May occasionally generate incorrect information`,
       `May occasionally produce harmful instructions or biased`,

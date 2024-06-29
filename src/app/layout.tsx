@@ -43,6 +43,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
+import { tensurftoken } from '@/services/http.service';
 
 const fontSans = FontSans({
   subsets: ['latin'],
@@ -122,7 +123,9 @@ export default function BrainLayout({
       router.push(`${process.env.NEXT_PUBLIC_TENSURF_URL}/plans`);
     }
     if (menu_select === 'logout') {
-      Cookies.remove('tensurftoken');
+      Cookies.remove(tensurftoken);
+      Cookies.remove(tensurftoken, { domain: 'tensurf.ai' });
+      Cookies.remove(tensurftoken, { domain: '.tensurf.ai' });
       router.replace(process.env.NEXT_PUBLIC_TENSURF_URL as string);
     }
   }, [menu_select, loadChats, router]);
@@ -143,6 +146,9 @@ export default function BrainLayout({
       .push('/chat/bookmark_chat/', {
         id: chat.id,
         bookmark: !chat.bookmark
+      })
+      .then(() => {
+        if (menu_select === 'bookmarks') dropChat(chat.id);
       })
       .catch(() => {
         toggleBookmark(chat.id);
@@ -203,9 +209,9 @@ export default function BrainLayout({
             </div>
           </CardContent>
           <Separator />
-          <div className='relative flex-grow overflow-y-auto'>
+          <div className='relative flex-grow w-full'>
             <CardContent
-              className={`px-8 flex flex-col absolute justify-start mt-4 transition-transform ${
+              className={`px-0 flex flex-col absolute justify-start mt-4 transition-transform ${
                 menu_select === 'chats' || menu_select === 'bookmarks' ? '-translate-x-[100%]' : 'translate-x-0'
               }`}
             >
@@ -224,45 +230,45 @@ export default function BrainLayout({
                 );
               })}
             </CardContent>
-            <CardContent
-              className={`px-8 flex flex-col justify-start mt-4 absolute transition-all top-0 w-full ${
+            <div
+              className={`p-2 flex flex-col justify-start absolute transition-all top-0 w-full ${
                 menu_select !== 'chats' && menu_select !== 'bookmarks' ? '-left-[100%] h-0' : 'left-0 h-full'
               }`}
             >
-              {chats.map((chat: any, index: number) => {
-                return (
-                  <div className='flex justify-between gap-2' key={index}>
-                    <Button
-                      variant={'ghost'}
-                      className={`text-wrap w-full my-2 text-start hover:bg-gpt hover:text-gpt-select items-center gap-1 justify-between ${
-                        chatKey === chat.key
-                          ? 'text-gpt bg-gpt-select hover:bg-gpt-select hover:text-gpt hover:opacity-80'
-                          : ''
-                      }`}
-                      onClick={() => router.push(`/${chat.key}`)}
-                    >
-                      <div className=''>{chat.title}</div>
+              <div className='overflow-y-auto my-2'>
+                {chats.map((chat: any, index: number) => {
+                  return (
+                    <div className='flex justify-between gap-2' key={index}>
+                      <Button
+                        variant={'ghost'}
+                        className={`text-wrap w-full my-2 text-start hover:bg-gpt hover:text-gpt-select items-center gap-1 justify-between ${
+                          chatKey === chat.key
+                            ? 'text-gpt bg-gpt-select hover:bg-gpt-select hover:text-gpt hover:opacity-80'
+                            : ''
+                        }`}
+                        onClick={() => router.push(`/${chat.key}`)}
+                      >
+                        <div className=''>{chat.title}</div>
 
-                      {/* <span
+                        {/* <span
                     className={`text-start ${
                       menu_select === menu.key && "text-gpt-select"
                     }`}
                   >
                     {menu.title}
                   </span> */}
-                    </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <Button
-                          variant='ghost'
-                          className='rounded-full hover:bg-gpt-select hover:text-gpt'
-                          size={'icon'}
-                        >
-                          <EllipsisVerticalIcon />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className='w-56'>
-                        {menu_select !== 'bookmarks' && (
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <Button
+                            variant='ghost'
+                            className='rounded-full hover:bg-gpt-select hover:text-gpt'
+                            size={'icon'}
+                          >
+                            <EllipsisVerticalIcon />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className='w-56'>
                           <DropdownMenuItem>
                             <Button
                               variant={'ghost'}
@@ -276,9 +282,8 @@ export default function BrainLayout({
                               />
                             </Button>
                           </DropdownMenuItem>
-                        )}
 
-                        {/* <DropdownMenuItem onClick={() => toggleAutoplay(!is_autoplay)}>
+                          {/* <DropdownMenuItem onClick={() => toggleAutoplay(!is_autoplay)}>
                           {is_autoplay ? (
                             <>
                               <VolumeX className='mr-2 w-4 h-4' />
@@ -292,26 +297,27 @@ export default function BrainLayout({
                           )}
                         </DropdownMenuItem> */}
 
-                        <DropdownMenuItem
-                        // onClick={() => setOpenClear(true)}
-                        >
-                          <Button
-                            variant={'ghost'}
-                            className='w-full flex justify-between text-destructive hover:text-destructive'
-                            onClick={() => {
-                              setOpenDelete(true);
-                              setDeleteChatObject(chat);
-                            }}
+                          <DropdownMenuItem
+                          // onClick={() => setOpenClear(true)}
                           >
-                            Delete Chat
-                            <TrashIcon className='w-[18px] h-[18px]' />
-                          </Button>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                );
-              })}
+                            <Button
+                              variant={'ghost'}
+                              className='w-full flex justify-between text-destructive hover:text-destructive'
+                              onClick={() => {
+                                setOpenDelete(true);
+                                setDeleteChatObject(chat);
+                              }}
+                            >
+                              Delete Chat
+                              <TrashIcon className='w-[18px] h-[18px]' />
+                            </Button>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  );
+                })}
+              </div>
               <Button
                 className='mb-2 bg-gpt text-gpt-select w-full hover:bg-gpt hover:text-gpt-select mr-auto mt-auto'
                 variant={'outline'}
@@ -322,7 +328,7 @@ export default function BrainLayout({
               >
                 Start a New Chat
               </Button>
-            </CardContent>
+            </div>
           </div>
         </Card>
         {children}

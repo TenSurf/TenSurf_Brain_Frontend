@@ -40,11 +40,11 @@ export const useBrainStore = create((set, get) => ({
       audioSpeed: value
     })),
 
-  dislikePrompt: (id: number) =>
+  likePrompt: (id: number, flag: boolean) =>
     set(() => {
       const { prompts }: any = get();
       return {
-        prompts: prompts.map((prompt: any) => (prompt.id === id ? { ...prompt, dislike: true } : prompt))
+        prompts: prompts.map((prompt: any) => (prompt.id === id ? { ...prompt, like: flag } : prompt))
       };
     }),
 

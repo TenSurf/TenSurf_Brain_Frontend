@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 
 // TYPES
 import { IService, EHttpMethod } from '@/types';
-const tensurftoken = 'tensurftoken';
+export const tensurftoken = 'tensurftoken';
 export class HttpService {
   private http: AxiosInstance;
   private baseURL = process.env.NEXT_PUBLIC_API_URL;
@@ -115,6 +115,8 @@ export class HttpService {
     if (error.response?.data) {
       if (error.response.status === 401) {
         Cookies.remove(tensurftoken);
+        Cookies.remove(tensurftoken, { domain: 'tensurf.ai' });
+        Cookies.remove(tensurftoken, { domain: '.tensurf.ai' });
         window.location.replace(process.env.NEXT_PUBLIC_TENSURF_URL + '/signin');
       }
     }
