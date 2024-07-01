@@ -128,10 +128,13 @@ export default function BrainLayout({
       Cookies.remove(tensurftoken, { domain: '.tensurf.ai' });
       router.replace(process.env.NEXT_PUBLIC_TENSURF_URL as string);
     }
-  }, [menu_select, loadChats, router]);
+  }, [menu_select, loadChats]);
 
   useEffect(() => {
+    console.log('chat', chatKey);
+
     if (chatKey) setMenuSelect('chats');
+    else setMenuSelect('home');
   }, [chatKey]);
 
   useEffect(() => {
@@ -161,8 +164,6 @@ export default function BrainLayout({
       .remove('/chat/delete_chat/', { id: deleteChatObject.id })
       .then(() => {
         setOpenDelete(false);
-        console.log(deleteChatObject.id, 'id');
-
         dropChat(deleteChatObject.id);
       })
       .catch(() => {})
@@ -173,7 +174,7 @@ export default function BrainLayout({
 
   return (
     <html lang='en'>
-      <body className={cn('h-screen bg-background font-sans antialiased m-0 p-0 flex', fontSans.variable)}>
+      <body className={cn('h-screen w-screen bg-background font-sans antialiased m-0 p-0 flex', fontSans.variable)}>
         <Card
           className='flex flex-col w-1/5 bg-gpt rounded-none text-gpt-foreground'
           style={{ boxShadow: '0px 0px 6px 0px #FFFFFF36' }}
@@ -235,18 +236,21 @@ export default function BrainLayout({
                 menu_select !== 'chats' && menu_select !== 'bookmarks' ? '-left-[100%] h-0' : 'left-0 h-full'
               }`}
             >
-              <div className='overflow-y-auto my-2'>
+              <div className='overflow-y-auto my-2 h-full'>
                 {chats.map((chat: any, index: number) => {
                   return (
                     <div className='flex justify-between gap-2' key={index}>
                       <Button
                         variant={'ghost'}
                         className={`text-wrap w-full my-2 text-start hover:bg-gpt hover:text-gpt-select items-center gap-1 justify-between ${
-                          chatKey === chat.key
+                          chatKey === chat.id
                             ? 'text-gpt bg-gpt-select hover:bg-gpt-select hover:text-gpt hover:opacity-80'
                             : ''
                         }`}
-                        onClick={() => router.push(`/${chat.key}`)}
+                        onClick={() => {
+                          setChatKey(chat.id);
+                          router.push(`/${chat.id}`);
+                        }}
                       >
                         <div className=''>{chat.title}</div>
 
@@ -322,8 +326,7 @@ export default function BrainLayout({
                 className='mb-2 bg-gpt text-gpt-select w-full hover:bg-gpt hover:text-gpt-select mr-auto mt-auto'
                 variant={'outline'}
                 onClick={() => {
-                  setMenuSelect('home');
-                  setChatKey('');
+                  setChatKey(null);
                 }}
               >
                 Start a New Chat

@@ -27,3 +27,12 @@ export interface IUser {
   website: string;
   company: ICompany;
 }
+
+export interface IIcon {
+  className?: string;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  logoColor?: string;
+  textColor?: string;
+}

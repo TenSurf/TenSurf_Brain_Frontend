@@ -7,7 +7,7 @@ import { useBrainStore } from '@/store/brain';
 import moment from 'moment';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 const features = [
   {
@@ -55,20 +55,22 @@ export default function Brain() {
     prompt_input_ref.current.value = item;
   };
   const router = useRouter();
-  const { setPromptLoading, addPrompt, loadPrompts }: any = useBrainStore();
+  const { setFirstPrompt, loadPrompts, setChatKey }: any = useBrainStore();
   const http = new HttpService();
+
+  // useEffect(() => {
+  //   setChatKey(null);
+  // }, []);
 
   const newChat = () => {
     if (prompt_input_ref.current && prompt_input_ref.current.value && prompt_input_ref.current.value.trim()) {
-      // scrollToBottom();
-      // setUploadLoading(true);
       const formData = new FormData();
-      formData.append('title', moment().format('YYYY-MM-DD HH:mm'));
+      formData.append('title', moment().format('MMMM DD, YYYY HH:mm:ss'));
       formData.append('text', prompt_input_ref.current.value.trim());
       http.push('/prompt/send_prompt/', formData).then((res: any) => {
         loadPrompts([res]);
-        setPromptLoading(true);
-        router.push(`/${res.chat.key}`);
+        setFirstPrompt(res.id);
+        router.push(`/${res.chat}`);
       });
     }
   };

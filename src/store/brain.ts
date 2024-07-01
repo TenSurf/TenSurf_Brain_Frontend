@@ -8,29 +8,47 @@ export const useBrainStore = create((set, get) => ({
   chatKey: '',
   audioSpeed: 1,
   userData: {},
+  firstPrompt: 0,
 
   loadChats: (data: any[]) => set(() => ({ chats: data })),
   loadPrompts: (data: any[]) => set(() => ({ prompts: data })),
-  addPrompt: (data: any) => set((state: any) => ({ prompts: [...state.prompts, data] })),
-
+  addPrompt: (data: any, user: boolean) =>
+    set((state: any) => {
+      if (user) {
+        return { prompts: [...state.prompts, data] };
+      } else {
+        return {
+          prompts: state.prompts.map((prompt: any) =>
+            prompt.id === data.parent_prompt
+              ? { ...prompt, regenerations: [...prompt.regenerations, data], loading: false }
+              : prompt
+          ),
+          promptLoading: false
+        };
+      }
+    }),
   updateUserData: (data: any) => set(() => ({ userData: data })),
 
-  setPromptLoading: (value: boolean) =>
+  setFirstPrompt: (id: number | null) =>
+    set(() => ({
+      firstPrompt: id
+    })),
+
+  getResultAi: (id: number) =>
     set((state: any) => {
-      if (value) {
-        const { prompts }: any = get();
-        const http = new HttpService();
-        http
-          .push('/prompt/result_chat/', { id: prompts.slice(-1)[0].id })
-          .then((res_ai: any) => {
-            state.addPrompt(res_ai);
-          })
-          .catch(() => {})
-          .finally(() => {
-            state.setPromptLoading(false);
-          });
-      }
-      return { promptLoading: value };
+      const http = new HttpService();
+
+      http.push('/prompt/result_chat/', { id: id }).then((res_ai: any) => {
+        state.addPrompt(res_ai, false);
+        state.setFirstPrompt(null);
+      });
+      // .catch(() => {})
+      // .finally(() => {
+      // });
+      return {
+        prompts: state.prompts.map((prompt: any) => (prompt.id === id ? { ...prompt, loading: true } : prompt)),
+        promptLoading: true
+      };
     }),
 
   setChatKey: (key: string) => set(() => ({ chatKey: key })),
@@ -44,7 +62,10 @@ export const useBrainStore = create((set, get) => ({
     set(() => {
       const { prompts }: any = get();
       return {
-        prompts: prompts.map((prompt: any) => (prompt.id === id ? { ...prompt, like: flag } : prompt))
+        prompts: prompts.map((prompt: any) => ({
+          ...prompt,
+          regenerations: prompt.regenerations.map((reg: any) => (reg.id === id ? { ...reg, like: flag } : reg))
+        }))
       };
     }),
 

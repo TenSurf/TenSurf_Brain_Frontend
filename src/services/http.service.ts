@@ -62,10 +62,17 @@ export class HttpService {
   }
 
   // Perform POST request
-  public async push<T, P>(url: string, payload: P, params?: IService.IParams, hasAttachment = false): Promise<T> {
+  public async push<T, P>(
+    url: string,
+    payload: P,
+    params?: IService.IParams,
+    hasAttachment: boolean = false,
+    blob: boolean = false
+  ): Promise<T> {
     return this.request<T>(EHttpMethod.POST, url, {
       params,
       data: payload,
+      responseType: blob ? 'blob' : undefined,
       headers: this.setupHeaders(hasAttachment)
     });
   }
